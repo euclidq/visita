@@ -1,0 +1,17 @@
+import { defineConfig } from 'vite'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  base: '/visita',
+  plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+    }),
+    tailwindcss(),
+    react()
+  ],
+})

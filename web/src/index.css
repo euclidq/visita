@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  padding: 0;
+  margin: 0;
+  font-family: "DM Sans", Arial, sans-serif;
+  @apply bg-gray-100;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.container {
+  @apply mx-auto bg-gray-100 p-8;
+}
+
+.card {
+  @apply bg-white shadow-md rounded-lg p-6;
+}
+
+h1 {
+  @apply text-3xl font-semibold;
+}
+
+h2 {
+  @apply text-2xl font-semibold;
+}
+
+h3 {
+  @apply text-xl font-semibold;
+}
