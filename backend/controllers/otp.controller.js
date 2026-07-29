@@ -29,7 +29,10 @@ const sendOtp = async (req, res) => {
   const emailAddress = req.body.emailAddress?.trim().toLowerCase();
 
   if (!emailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
-    return res.status(400).json({ message: "A valid email address is required" });
+    return res.status(400).json({
+      title: "OTP Sending Failed",
+      message: "A valid email address is required",
+    });
   }
 
   try {

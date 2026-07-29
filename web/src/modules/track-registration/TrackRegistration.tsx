@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import useOpenNotification from "../../shared/hooks/useOpenNotification";
 import axios from "axios";
 import Header from "../../shared/components/Header";
+import { STATUS_COLORS } from "../../shared/constants/colors";
+import { useNavigate } from '@tanstack/react-router';
 
 interface Visit {
   referenceNumber: string;
@@ -16,17 +18,9 @@ interface Visit {
   status: string;
 }
 
-const statusColors: Record<string, string> = {
-  PENDING: 'gold',
-  APPROVED: 'green',
-  REJECTED: 'red',
-  CHECKED_IN: 'blue',
-  CHECKED_OUT: 'purple',
-  ARCHIVED: 'gray',
-};
-
 const TrackRegistration = () => {
-  const { openNotification, contextHolder } = useOpenNotification();
+  const navigate = useNavigate();
+  const { openNotification, openApiError, contextHolder } = useOpenNotification();
   const [formData, setFormData] = useState({
     referenceNumber: '',
     emailAddress: '',
@@ -92,6 +86,19 @@ const TrackRegistration = () => {
     }));
   };
 
+  const handleClearForm = () => {
+    setFormData({
+      referenceNumber: '',
+      emailAddress: '',
+      otp: ''
+    });
+    setErrors({});
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtpCountdown(0);
+    setVisit(null);
+  };
+
   const handleSendOtp = async () => {
     const emailError = validateField('emailAddress', formData.emailAddress);
     setErrors((previousErrors) => ({
@@ -118,15 +125,7 @@ const TrackRegistration = () => {
       openNotification('success', response.data.title, response.data.message);
     } catch (error) {
       console.error('Error sending OTP:', error);
-      if (axios.isAxiosError<{ title?: string; message?: string }>(error)) {
-        openNotification(
-          "error",
-          error.response?.data.title ?? "Unable to Track Visit",
-          error.response?.data.message ?? "Check your details and OTP, then try again.",
-        );
-      } else {
-        openNotification("error", "Unable to Track Visit", "Check your details and OTP, then try again.");
-      }
+      openApiError(error, 'OTP Sending Failed', 'Failed to send OTP');
     } finally {
       setIsSendingOtp(false);
     }
@@ -151,18 +150,15 @@ const TrackRegistration = () => {
       );
       setVisit(response.data.data);
       setIsOtpVerified(true);
+      openNotification('success', response.data.title, response.data.message);
     } catch (error) {
       console.error("Error tracking visit:", error);
       setVisit(null);
-      if (axios.isAxiosError<{ title?: string; message?: string }>(error)) {
-        openNotification(
-          "error",
-          error.response?.data.title ?? "Unable to Track Visit",
-          error.response?.data.message ?? "Check your details and OTP, then try again.",
-        );
-      } else {
-        openNotification("error", "Unable to Track Visit", "Check your details and OTP, then try again.");
-      }
+      openApiError(
+        error,
+        'Unable to Track Visit',
+        'Check your details and OTP, then try again.',
+      );
     } finally {
       setIsTrackingRegistration(false);
     }
@@ -174,7 +170,13 @@ const TrackRegistration = () => {
       {contextHolder}
       <div className="container max-w-2xl space-y-4">
         <h2>Track Registration</h2>
-        <div className="card flex flex-col gap-4 w-full">
+        <form
+          className="card flex flex-col gap-4 w-full"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleTrackRegistration();
+          }}
+        >
           <InputWrapper id="reference-number-field" label="Reference Number" error={errors.referenceNumber}>
             <Input
               id="reference-number-field"
@@ -221,27 +223,34 @@ const TrackRegistration = () => {
                 disabled={!isOtpSent || isOtpVerified} />
             </InputWrapper>
           )}
-          <Button
-            id="track-registration"
-            type="primary"
-            loading={isTrackingRegistration}
-            disabled={
-              isOtpVerified
-              || !formData.referenceNumber
-              || !formData.emailAddress
-              || !formData.otp
-            }
-            onClick={handleTrackRegistration}>
-            {isOtpVerified ? "Verified" : "Track Registration"}
-          </Button>
-        </div>
+          <div className="flex justify-between">
+            <Button
+              id="go-home"
+              onClick={() => { handleClearForm(); navigate({ to: '/' }); }}>
+              Back to Menu
+            </Button>
+            <Button
+              id="track-registration"
+              type="primary"
+              htmlType="submit"
+              loading={isTrackingRegistration}
+              disabled={
+                isOtpVerified
+                || !formData.referenceNumber
+                || !formData.emailAddress
+                || !formData.otp
+              }>
+              {isOtpVerified ? "Verified" : "Track Registration"}
+            </Button>
+          </div>
+        </form>
         {visit && (
           <div
             className="card"
             title="Visit Details">
             <div className="flex items-center justify-between mb-4">
               <h3>Visit Details</h3>
-              <Tag color={statusColors[visit.status] ?? 'default'} variant="solid">
+              <Tag color={STATUS_COLORS[visit.status] ?? 'default'} variant="solid">
                 {visit.status}
               </Tag>
             </div>

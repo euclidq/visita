@@ -30,14 +30,6 @@ const TRACK_REQUIRED_FIELDS = {
   otp: "OTP",
 };
 
-const getRegistrationErrorMessage = (error) => {
-  if (error?.name === "ValidationError") {
-    return Object.values(error.errors)[0]?.message ?? "Invalid registration details";
-  }
-
-  return error?.message ?? "Unable to register visit";
-};
-
 const renderVisitConfirmationEmail = async ({ referenceNumber, qrCodeCid }) => {
   const templatePath = path.join(
     __dirname,
@@ -184,7 +176,7 @@ const registerVisit = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       title: "Registration Failed",
-      message: getRegistrationErrorMessage(error),
+      message: error.message,
     });
   }
 };
@@ -249,8 +241,75 @@ const trackVisit = async (req, res) => {
   }
 };
 
+const listVisits = async (req, res) => {
+  const page = Math.max(Number(req.query.page) || 1, 1);
+  const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
+  const sortFields = ["referenceNumber", "firstName", "emailAddress", "personToVisit", "unitBuilding", "status", "createdAt"];
+  const sortField = sortFields.includes(req.query.sortField) ? req.query.sortField : "createdAt";
+  const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+  const query = {};
+
+  if (req.query.status) {
+    query.status = req.query.status;
+  }
+  if (req.query.search?.trim()) {
+    const search = req.query.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    query.$or = [
+      { referenceNumber: { $regex: search, $options: "i" } },
+      { firstName: { $regex: search, $options: "i" } },
+      { lastName: { $regex: search, $options: "i" } },
+      { emailAddress: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  try {
+    const [visits, total] = await Promise.all([
+      Visit.find(query)
+        .sort({ [sortField]: sortOrder })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Visit.countDocuments(query),
+    ]);
+
+    res.json({
+      data: visits,
+      pagination: { page, limit, total },
+    });
+  } catch (error) {
+    res.status(500).json({
+      title: "Unable to Load Registrations",
+      message: error.message,
+    });
+  }
+};
+
+const getVisit = async (req, res) => {
+  try {
+    const visit = await Visit.findById(req.params.visitId).lean();
+
+    if (!visit) {
+      return res.status(404).json({
+        title: "Registration Not Found",
+        message: "Visitor registration was not found",
+      });
+    }
+
+    res.json({ data: visit });
+  } catch (error) {
+    res.status(error.name === "CastError" ? 404 : 500).json({
+      title: "Registration Not Found",
+      message: error.name === "CastError"
+        ? "Visitor registration was not found"
+        : error.message,
+    });
+  }
+};
+
 module.exports = {
   createVisit,
   registerVisit,
   trackVisit,
+  listVisits,
+  getVisit,
 };

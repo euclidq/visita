@@ -18,6 +18,10 @@ textarea {
   @apply mx-auto bg-gray-100 p-8;
 }
 
+.center {
+  @apply flex flex-col flex-1 items-center justify-center
+}
+
 .card {
   @apply bg-white shadow-md rounded-lg p-6;
 }
