@@ -101,8 +101,8 @@ const verifyOtp = (req, res) => {
   });
 
   res.status(200).json({
-    title: "OTP Verified",
-    message: "OTP verified successfully",
+    title: "OTP Verified Successfully",
+    message: "OTP has been verified successfully",
     verificationToken,
   });
 };

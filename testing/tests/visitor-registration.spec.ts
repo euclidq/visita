@@ -41,7 +41,7 @@ test.describe('Visitor Registration', () => {
     await page.getByRole('heading', { name: 'Visitor Registration' }).isVisible();
   });
 
-  test('[TC-001] should submit visitor registration form successfully', async ({ page }) => {
+  test('[R1_VR_TC_001] should submit visitor registration form successfully with valid data', async ({ page }) => {
     await fillStep1(page);
     await page.getByRole('button', { name: 'Next' }).click();
 
@@ -52,31 +52,31 @@ test.describe('Visitor Registration', () => {
     await expect(page).toHaveURL(/.*visitor-registration\/success/);
   });
 
-  test('[TC-002] should require first name', async ({ page }) => {
+  test('[R1_VR_TC_002] should show error message with empty first name', async ({ page }) => {
     await page.getByLabel('First Name').click();
     clickAway(page);
     await expect(page.getByText('First Name is required')).toBeVisible();
   });
 
-  test('[TC-003] should require last name', async ({ page }) => {
+  test('[R1_VR_TC_003] should show error message with empty last name', async ({ page }) => {
     await page.getByLabel('Last Name').click();
     clickAway(page);
     await expect(page.getByText('Last Name is required')).toBeVisible();
   });
 
-  test('[TC-004] should require email address', async ({ page }) => {
+  test('[R1_VR_TC_004] should show error message with empty email address', async ({ page }) => {
     await page.getByLabel('Email Address').click();
     clickAway(page);
     await expect(page.getByText('Email Address is required')).toBeVisible();
   });
 
-  test('[TC-005] should require valid email address', async ({ page }) => {
+  test('[R1_VR_TC_005] should show error message with invalid email address format', async ({ page }) => {
     await page.getByLabel('Email Address').fill('invalid-email-address');
     clickAway(page);
     await expect(page.getByText('Enter a valid email address')).toBeVisible();
   });
 
-  test('[TC-006] should require OTP', async ({ page }) => {
+  test('[R1_VR_TC_006] should show error message with empty OTP', async ({ page }) => {
     await sendOtp(page, testData.emailAddress);
 
     await page.getByLabel('OTP').click();
@@ -84,7 +84,7 @@ test.describe('Visitor Registration', () => {
     await expect(page.getByText('OTP is required')).toBeVisible({ timeout: 0 });
   });
 
-  test('[TC-007] should require valid OTP', async ({ page }) => {
+  test('[R1_VR_TC_007] should show error message with invalid OTP', async ({ page }) => {
     await sendOtp(page, testData.emailAddress);
 
     await page.getByLabel('OTP').fill('654321');
@@ -92,7 +92,7 @@ test.describe('Visitor Registration', () => {
     await expect(page.getByText('Invalid OTP')).toBeVisible({ timeout: 0 });
   });
 
-  test('[TC-008] should require unexpired OTP', async ({ page }) => {
+  test('[R1_VR_TC_008] should show error message with expired OTP', async ({ page }) => {
     await sendOtp(page, testData.emailAddress);
 
     await page.waitForTimeout(15000); // 15 seconds
@@ -102,25 +102,25 @@ test.describe('Visitor Registration', () => {
     await expect(page.getByText('OTP has expired')).toBeVisible({ timeout: 0 });
   });
 
-  test('[TC-009] should display OTP requuest cooldown', async ({ page }) => {
+  test('[R1_VR_TC_009] should display OTP request cooldown', async ({ page }) => {
     await sendOtp(page, testData.emailAddress);
 
     await expect(page.getByRole('button', { name: /Resend OTP after \(\d+s\)/ })).toBeVisible({ timeout: 0 });
   });
 
-  test('[TC-010] should require mobile number', async ({ page }) => {
+  test('[R1_VR_TC_010] should show error message with empty mobile number', async ({ page }) => {
     await page.getByLabel('Mobile Number').click();
     clickAway(page);
     await expect(page.getByText('Mobile Number is required')).toBeVisible();
   });
 
-  test('[TC-011] should require valid mobile number', async ({ page }) => {
-    await page.getByLabel('Mobile Number').fill('invalid-mobile');
+  test('[R1_VR_TC_011] should show error message with invalid mobile number format', async ({ page }) => {
+    await page.getByLabel('Mobile Number').fill('invalid-mobile-number');
     clickAway(page);
     await expect(page.getByText('Enter a valid mobile number')).toBeVisible();
   });
 
-  test('[TC-012] should require purpose', async ({ page }) => {
+  test('[R1_VR_TC_012] should show error message with empty purpose', async ({ page }) => {
     await fillStep1(page);
     await page.getByRole('button', { name: 'Next' }).click();
 
@@ -129,7 +129,7 @@ test.describe('Visitor Registration', () => {
     await expect(page.getByText('Purpose is required')).toBeVisible();
   });
 
-  test('[TC-013] should require person to visit', async ({ page }) => {
+  test('[R1_VR_TC_013] should show error message with empty person to visit', async ({ page }) => {
     await fillStep1(page);
     await page.getByRole('button', { name: 'Next' }).click();
 
@@ -138,7 +138,7 @@ test.describe('Visitor Registration', () => {
     await expect(page.getByText('Person to Visit is required')).toBeVisible();
   });
 
-  test('[TC-014] should require unit number', async ({ page }) => {
+  test('[R1_VR_TC_014] should show error message with empty unit number', async ({ page }) => {
     await fillStep1(page);
     await page.getByRole('button', { name: 'Next' }).click();
 
@@ -147,7 +147,7 @@ test.describe('Visitor Registration', () => {
     await expect(page.getByText('Unit Number is required')).toBeVisible();
   });
 
-  test('[TC-015] should require building', async ({ page }) => {
+  test('[R1_VR_TC_015] should show error message with empty building', async ({ page }) => {
     await fillStep1(page);
     await page.getByRole('button', { name: 'Next' }).click();
 

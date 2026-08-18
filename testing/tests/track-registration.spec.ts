@@ -24,7 +24,7 @@ test.describe('Track Registration', () => {
         await page.getByRole('heading', { name: 'Track Registration' }).isVisible();
     });
 
-    test('[TC-014] should submit track registration form successfully', async ({ page }) => {
+    test('[R1_TR_TC_001] should submit track registration form successfully', async ({ page }) => {
         await page.getByLabel('Reference Number').fill(testData.referenceNumber);
         sendOtp(page, testData.emailAddress);
         await page.getByLabel('OTP').fill(testData.otp);
@@ -37,25 +37,25 @@ test.describe('Track Registration', () => {
         await expect(page.locator('#location')).toBeVisible();
     });
 
-    test('[TC-015] should require reference number', async ({ page }) => {
+    test('[R1_TR_TC_002] should show error message with empty reference number', async ({ page }) => {
         await page.getByLabel('Reference Number').click();
         await clickAway(page);
         await expect(page.getByText('Reference Number is required')).toBeVisible();
     });
 
-    test('[TC-016] should require email address', async ({ page }) => {
+    test('[R1_TR_TC_003] should show error message with empty email address', async ({ page }) => {
         await page.getByLabel('Email Address').click();
         await clickAway(page);
         await expect(page.getByText('Email Address is required')).toBeVisible();
     });
 
-    test('[TC-017] should require valid email address', async ({ page }) => {
+    test('[R1_TR_TC_004] should show error message with invalid email address format', async ({ page }) => {
         await page.getByLabel('Email Address').fill('invalid-email');
         clickAway(page);
         await expect(page.getByText('Enter a valid email address')).toBeVisible();
     });
 
-    test('[TC-018] should require OTP', async ({ page }) => {
+    test('[R1_TR_TC_005] should show error message with empty OTP', async ({ page }) => {
         await sendOtp(page, testData.emailAddress);
 
         await page.getByLabel('OTP').click();
@@ -64,7 +64,7 @@ test.describe('Track Registration', () => {
         await expect(page.getByText('OTP is required')).toBeVisible();
     });
 
-    test('[TC-019] should require valid OTP', async ({ page }) => {
+    test('[R1_TR_TC_006] should show error message with invalid OTP', async ({ page }) => {
         await page.getByLabel('Reference Number').fill(testData.referenceNumber);
         await sendOtp(page, testData.emailAddress);
 
@@ -74,7 +74,7 @@ test.describe('Track Registration', () => {
         await expect(page.getByText('Invalid OTP')).toBeVisible();
     });
 
-    test('[TC-020] should require unexpired OTP', async ({ page }) => {
+    test('[R1_TR_TC_007] should show error message with expired OTP', async ({ page }) => {
         await page.getByLabel('Reference Number').fill(testData.referenceNumber);
         await sendOtp(page, testData.emailAddress);
 
@@ -86,7 +86,7 @@ test.describe('Track Registration', () => {
         await expect(page.getByText('Expired OTP')).toBeVisible();
     });
 
-    test('[TC-021] should display OTP request cooldown', async ({ page }) => {
+    test('[R1_TR_TC_008] should display OTP request cooldown', async ({ page }) => {
         await page.getByLabel('Reference Number').fill(testData.referenceNumber);
         await sendOtp(page, testData.emailAddress);
 
@@ -94,7 +94,7 @@ test.describe('Track Registration', () => {
     });
 
     // invalid reference number and email address combination
-    test('[TC-022] should require valid reference number and email address combination', async ({ page }) => {
+    test('[R1_TR_TC_009] should show error message with invalid reference number and invalid email address', async ({ page }) => {
         await page.getByLabel('Reference Number').fill('invalid-reference-number');
         await sendOtp(page, 'sample@email.com');
 
@@ -104,7 +104,7 @@ test.describe('Track Registration', () => {
         await expect(page.getByText('Visit Not Found')).toBeVisible();
     });
 
-    test('[TC-023] should require valid reference number', async ({ page }) => {
+    test('[R1_TR_TC_010] should show error message with invalid reference number', async ({ page }) => {
         await page.getByLabel('Reference Number').fill('invalid-reference-number');
         await sendOtp(page, testData.emailAddress);
 
@@ -114,7 +114,7 @@ test.describe('Track Registration', () => {
         await expect(page.getByText('Visit Not Found')).toBeVisible();
     });
 
-    test('[TC-024] should require valid email address', async ({ page }) => {
+    test('[R1_TR_TC_011] should show error message with invalid email address', async ({ page }) => {
         await page.getByLabel('Reference Number').fill(testData.referenceNumber);
         await sendOtp(page, 'sample@email.com');
 

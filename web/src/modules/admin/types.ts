@@ -13,3 +13,16 @@ export interface Visit {
   createdAt: string;
   updatedAt: string;
 }
+
+export type VisitTableRow = Pick<
+  Visit,
+  | '_id'
+  | 'referenceNumber'
+  | 'status'
+  | 'firstName'
+  | 'lastName'
+  | 'personToVisit'
+  | 'unitNumber'
+  | 'unitBuilding'
+  | 'createdAt'
+>;

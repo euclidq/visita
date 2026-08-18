@@ -29,6 +29,16 @@ const TRACK_REQUIRED_FIELDS = {
   emailAddress: "Email address",
   otp: "OTP",
 };
+const VISIT_TABLE_FIELDS = [
+  "referenceNumber",
+  "status",
+  "firstName",
+  "lastName",
+  "personToVisit",
+  "unitNumber",
+  "unitBuilding",
+  "createdAt",
+].join(" ");
 
 const renderVisitConfirmationEmail = async ({ referenceNumber, qrCodeCid }) => {
   const templatePath = path.join(
@@ -244,7 +254,14 @@ const trackVisit = async (req, res) => {
 const listVisits = async (req, res) => {
   const page = Math.max(Number(req.query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
-  const sortFields = ["referenceNumber", "firstName", "emailAddress", "personToVisit", "unitBuilding", "status", "createdAt"];
+  const sortFields = [
+    "referenceNumber",
+    "status",
+    "firstName",
+    "personToVisit",
+    "unitBuilding",
+    "createdAt",
+  ];
   const sortField = sortFields.includes(req.query.sortField) ? req.query.sortField : "createdAt";
   const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
   const query = {};
@@ -253,18 +270,24 @@ const listVisits = async (req, res) => {
     query.status = req.query.status;
   }
   if (req.query.search?.trim()) {
-    const search = req.query.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    query.$or = [
-      { referenceNumber: { $regex: search, $options: "i" } },
-      { firstName: { $regex: search, $options: "i" } },
-      { lastName: { $regex: search, $options: "i" } },
-      { emailAddress: { $regex: search, $options: "i" } },
-    ];
+    const searchTerms = req.query.search
+      .trim()
+      .split(/\s+/)
+      .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+
+    query.$and = searchTerms.map((term) => ({
+      $or: [
+        { referenceNumber: { $regex: term, $options: "i" } },
+        { firstName: { $regex: term, $options: "i" } },
+        { lastName: { $regex: term, $options: "i" } }
+      ],
+    }));
   }
 
   try {
     const [visits, total] = await Promise.all([
       Visit.find(query)
+        .select(VISIT_TABLE_FIELDS)
         .sort({ [sortField]: sortOrder })
         .skip((page - 1) * limit)
         .limit(limit)
@@ -273,6 +296,8 @@ const listVisits = async (req, res) => {
     ]);
 
     res.json({
+      title: "Visitor Registrations Fetched",
+      message: "Visitor registrations were fetched successfully",
       data: visits,
       pagination: { page, limit, total },
     });
@@ -295,7 +320,11 @@ const getVisit = async (req, res) => {
       });
     }
 
-    res.json({ data: visit });
+    res.json({
+      title: "Visitor Registration Fetched",
+      message: "Visitor registration was fetched successfully",
+      data: visit
+    });
   } catch (error) {
     res.status(error.name === "CastError" ? 404 : 500).json({
       title: "Registration Not Found",

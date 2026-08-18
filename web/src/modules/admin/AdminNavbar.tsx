@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
-import { Button, Space } from 'antd';
+import { Button, Modal, Space } from 'antd';
 import useOpenNotification from '../../shared/hooks/useOpenNotification';
 
 interface User {
@@ -16,19 +16,54 @@ const AdminNavbar = () => {
   const [user, setUser] = useState<User>();
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/auth/me`, {
-        withCredentials: true,
-      })
-      .then(({ data }) => setUser(data.data))
-      .catch((error) => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, {
+          withCredentials: true,
+        });
+        setUser(response.data.data);
+      } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          void navigate({ to: '/admin/login' });
+          await navigate({ to: '/admin/login' });
         } else {
           openApiError(error, 'Account Loading Failed', 'Unable to load your account');
         }
-      });
+      }
+    };
+
+    void fetchUser();
   }, [navigate, openApiError]);
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/logout`,
+        {},
+        { withCredentials: true },
+      );
+      openNotification('success', response.data.title, response.data.message);
+      await navigate({ to: '/admin/login' });
+    } catch (error) {
+      openApiError(error, 'Logout Failed', 'Unable to log out');
+    }
+  };
+
+  const confirmLogout = () => {
+    Modal.confirm({
+      title: "Confirm Logout",
+      content: "Are you sure you want to log out?",
+      okText: "Log Out",
+      cancelText: "Cancel",
+      okButtonProps: {
+        id: "confirm-logout-button",
+        danger: true,
+        type: "primary",
+      },
+      onOk: async () => {
+        await handleLogout();
+      },
+    });
+  };
 
   return (
     <>
@@ -39,22 +74,10 @@ const AdminNavbar = () => {
             Dashboard
           </Button>
           <Space>
-            {user && <span>{user.firstName} {user.lastName} ({user.role})</span>}
+            {user && <span>{user.firstName} {user.lastName}</span>}
             <Button
-              onClick={async () => {
-                try {
-                  const response = await axios.post(
-                    `${import.meta.env.VITE_API_URL}/auth/logout`,
-                    {},
-                    { withCredentials: true },
-                  );
-                  openNotification('success', response.data.title, response.data.message);
-                  await navigate({ to: '/admin/login' });
-                } catch (error) {
-                  openApiError(error, 'Logout Failed', 'Unable to log out');
-                }
-              }}
-            >
+              id="logout-button"
+              onClick={confirmLogout}>
               Log Out
             </Button>
           </Space>
