@@ -30,7 +30,11 @@ const SuccessPage = () => {
             </div>
           }
           extra={
-            <Button type="primary" onClick={() => navigate({ to: '/' })}>
+            <Button
+              color="primary"
+              variant="solid"
+              onClick={() => navigate({ to: '/' })}
+            >
               Back to Home
             </Button>
           }

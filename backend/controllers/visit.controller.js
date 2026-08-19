@@ -12,7 +12,7 @@ const QRCode = require("qrcode");
 const EMAIL_LOGO_CID = "visita-logo@visita";
 const EMAIL_LOGO_PATH = path.join(
   __dirname,
-  "../assets/visita_horizontal_blue.png",
+  "../assets/visita_horizontal_white.png",
 );
 const REGISTRATION_REQUIRED_FIELDS = {
   firstName: "First name",
@@ -24,6 +24,10 @@ const REGISTRATION_REQUIRED_FIELDS = {
   unitNumber: "Unit number",
   unitBuilding: "Building",
 };
+const STATUS_NOTIFICATION_TEMPLATE_PATH = path.join(
+  __dirname,
+  "../templates/status-notification.html",
+);
 const TRACK_REQUIRED_FIELDS = {
   referenceNumber: "Reference number",
   emailAddress: "Email address",
@@ -40,7 +44,7 @@ const VISIT_TABLE_FIELDS = [
   "createdAt",
 ].join(" ");
 
-const renderVisitConfirmationEmail = async ({ referenceNumber, qrCodeCid }) => {
+const renderVisitConfirmationEmail = async ({ referenceNumber }) => {
   const templatePath = path.join(
     __dirname,
     "../templates/registration-confirmation.html",
@@ -49,8 +53,42 @@ const renderVisitConfirmationEmail = async ({ referenceNumber, qrCodeCid }) => {
 
   return template
     .replaceAll("{{referenceNumber}}", referenceNumber)
-    .replaceAll("{{qrCodeCid}}", qrCodeCid)
     .replaceAll("{{logoCid}}", EMAIL_LOGO_CID);
+};
+
+const escapeHtml = (value) => String(value ?? "").replace(
+  /[&<>"']/g,
+  (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character],
+);
+
+const renderVisitStatusEmail = async (visit, qrCodeCid) => {
+  const template = await readFile(STATUS_NOTIFICATION_TEMPLATE_PATH, "utf8");
+  const isApproved = visit.status === "APPROVED";
+  const heading = `Your registration has been ${isApproved ? "approved" : "rejected"}`;
+  const subtitle = isApproved
+    ? "Please keep your reference number for your visit."
+    : "Please review the rejection reason below for more information.";
+  const rejectionReasonSection = visit.rejectionReason
+    ? `<div style="margin-top: 16px"><span style="display: block; margin-bottom: 4px; color: #4b5563">Rejection reason</span><strong style="display: block; font-size: 18px">${escapeHtml(visit.rejectionReason)}</strong></div>`
+    : "";
+  const qrCodeSection = isApproved
+    ? `<img src="cid:${qrCodeCid}" alt="QR code containing the registration reference number" width="320" style="display: block; width: 100%; max-width: 320px; height: auto; margin: 24px auto 0" /><p style="margin: 24px 0 0; color: #4b5563">Present this QR code before check-in.</p>`
+    : "";
+
+  return template
+    .replaceAll("{{logoCid}}", EMAIL_LOGO_CID)
+    .replaceAll("{{heading}}", heading)
+    .replaceAll("{{subtitle}}", subtitle)
+    .replaceAll("{{referenceNumber}}", escapeHtml(visit.referenceNumber))
+    .replaceAll("{{visitorName}}", escapeHtml(`${visit.firstName} ${visit.lastName}`))
+    .replaceAll("{{rejectionReasonSection}}", rejectionReasonSection)
+    .replaceAll("{{qrCodeSection}}", qrCodeSection);
 };
 
 // Create a new visit
@@ -63,35 +101,21 @@ const createVisit = async (req, res) => {
 
     const emailAddress = req.body.emailAddress?.trim().toLowerCase();
     if (emailAddress) {
-      const qrCode = await QRCode.toBuffer(referenceNumber, {
-        errorCorrectionLevel: "H",
-        margin: 2,
-        type: "png",
-        width: 320,
-      });
-      const qrCodeCid = `visit-${referenceNumber}@visita`;
       const emailHtml = await renderVisitConfirmationEmail({
         referenceNumber,
-        qrCodeCid,
       });
 
       await mailer.sendMail({
-        from: `"Visitor Management System" <${process.env.GOOGLE_EMAIL}>`,
+        from: `"Visita" <${process.env.GOOGLE_EMAIL}>`,
         to: emailAddress,
         subject: "Registration Confirmation",
         html: emailHtml,
         attachments: [
           {
-            filename: "visita-horizontal-blue.png",
+            filename: "visita-horizontal-white.png",
             path: EMAIL_LOGO_PATH,
             contentType: "image/png",
             cid: EMAIL_LOGO_CID,
-          },
-          {
-            filename: `visit-${referenceNumber}.png`,
-            content: qrCode,
-            contentType: "image/png",
-            cid: qrCodeCid,
           },
         ],
       });
@@ -142,36 +166,22 @@ const registerVisit = async (req, res) => {
     const visit = await Visit.create(visitData);
 
     if (emailAddress) {
-      const qrCode = await QRCode.toBuffer(referenceNumber, {
-        errorCorrectionLevel: "H",
-        margin: 2,
-        type: "png",
-        width: 320,
-      });
-      const qrCodeCid = `visit-${referenceNumber}@visita`;
       const emailHtml = await renderVisitConfirmationEmail({
         referenceNumber,
-        qrCodeCid,
       });
 
       if (process.env.NODE_ENV !== "testing") {
         await mailer.sendMail({
-          from: `"Visitor Management System" <${process.env.GOOGLE_EMAIL}>`,
+          from: `"Visita" <${process.env.GOOGLE_EMAIL}>`,
           to: emailAddress,
           subject: "Registration Confirmation",
           html: emailHtml,
           attachments: [
             {
-              filename: "visita-horizontal-blue.png",
+              filename: "visita-horizontal-white.png",
               path: EMAIL_LOGO_PATH,
               contentType: "image/png",
               cid: EMAIL_LOGO_CID,
-            },
-            {
-              filename: `visit-${referenceNumber}.png`,
-              content: qrCode,
-              contentType: "image/png",
-              cid: qrCodeCid,
             },
           ],
         });
@@ -335,10 +345,106 @@ const getVisit = async (req, res) => {
   }
 };
 
+const updateVisitStatus = async (req, res) => {
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({
+      title: "Status Update Failed",
+      message: "Only administrators can update a visit status",
+    });
+  }
+
+  const status = req.body.status?.toString().trim().toUpperCase();
+  const rejectionReason = req.body.rejectionReason?.toString().trim();
+
+  if (!["APPROVED", "REJECTED"].includes(status)) {
+    return res.status(400).json({
+      title: "Status Update Failed",
+      message: "Status must be APPROVED or REJECTED",
+    });
+  }
+
+  if (status === "REJECTED" && !rejectionReason) {
+    return res.status(400).json({
+      title: "Status Update Failed",
+      message: "Rejection reason is required",
+    });
+  }
+
+  try {
+    const visit = await Visit.findById(req.params.visitId);
+
+    if (!visit) {
+      return res.status(404).json({
+        title: "Registration Not Found",
+        message: "Visitor registration was not found",
+      });
+    }
+
+    if (visit.status !== "PENDING") {
+      return res.status(400).json({
+        title: "Status Update Failed",
+        message: "Only pending visitor registrations can be updated",
+      });
+    }
+
+    visit.status = status;
+    visit.rejectionReason = status === "REJECTED" ? rejectionReason : undefined;
+    await visit.save();
+
+    if (process.env.NODE_ENV !== "testing") {
+      const attachments = [{
+        filename: "visita-horizontal-white.png",
+        path: EMAIL_LOGO_PATH,
+        contentType: "image/png",
+        cid: EMAIL_LOGO_CID,
+      }];
+      let qrCodeCid;
+
+      if (status === "APPROVED") {
+        qrCodeCid = `visit-${visit.referenceNumber}@visita`;
+        attachments.push({
+          filename: `visit-${visit.referenceNumber}.png`,
+          content: await QRCode.toBuffer(visit.referenceNumber, {
+            errorCorrectionLevel: "H",
+            margin: 2,
+            type: "png",
+            width: 320,
+          }),
+          contentType: "image/png",
+          cid: qrCodeCid,
+        });
+      }
+
+      const emailHtml = await renderVisitStatusEmail(visit, qrCodeCid);
+      await mailer.sendMail({
+        from: `"Visita" <${process.env.GOOGLE_EMAIL}>`,
+        to: visit.emailAddress,
+        subject: `Visit Request ${status === "APPROVED" ? "Approved" : "Rejected"}`,
+        html: emailHtml,
+        attachments,
+      });
+    }
+
+    res.json({
+      title: `Visit ${status === "APPROVED" ? "Approved" : "Rejected"}`,
+      message: `Visitor registration was ${status.toLowerCase()} successfully`,
+      data: visit,
+    });
+  } catch (error) {
+    res.status(error.name === "CastError" ? 404 : 500).json({
+      title: error.name === "CastError" ? "Registration Not Found" : "Status Update Failed",
+      message: error.name === "CastError"
+        ? "Visitor registration was not found"
+        : error.message,
+    });
+  }
+};
+
 module.exports = {
   createVisit,
   registerVisit,
   trackVisit,
   listVisits,
   getVisit,
+  updateVisitStatus,
 };

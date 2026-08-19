@@ -33,11 +33,7 @@ test.describe('Admin Dashboard', () => {
         await statusSelect.click();
         await expect(statusSelect).toHaveAttribute('aria-expanded', 'true');
 
-        const pendingOption = page
-            .locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option')
-            .filter({ hasText: /^PENDING$/ });
-        await expect(pendingOption).toBeVisible();
-        await pendingOption.click();
+        await page.getByRole('option', { name: 'PENDING', exact: true }).click();
 
         await expect(statusSelect).toHaveAttribute('aria-expanded', 'false');
         await expect(page.getByRole('table')).toContainText('PENDING');
@@ -51,8 +47,8 @@ test.describe('Admin Dashboard', () => {
     });
 
     test('[R2_AD_TC_006] should allow pagination of visitor registrations', async ({ page }) => {
-        const nextPage = page.locator('li[title="Next Page"]');
-        await expect(nextPage).toHaveAttribute('aria-disabled', 'false');
+        const nextPage = page.getByRole('button', { name: 'right', exact: true });
+        await expect(nextPage).toBeEnabled();
         await nextPage.click();
         await expect(page.getByRole('table')).toBeVisible();
     });
@@ -63,14 +59,9 @@ test.describe('Admin Dashboard', () => {
     });
 
     test('[R2_AD_TC_008] should allow viewing registration details', async ({ page }) => {
-        const firstRow = page.getByRole('table').locator('tbody').getByRole('row').first();
-        const detailResponsePromise = page.waitForResponse((response) =>
-            response.request().method() === 'GET'
-            && /\/visit\/[^/?]+$/.test(response.url())
-        );
+        const firstRow = page.getByRole('table').getByRole('row').nth(1);
 
         await firstRow.getByRole('button', { name: 'View', exact: true }).click();
-        expect((await detailResponsePromise).ok()).toBeTruthy();
 
         const detailsDialog = page.getByRole('dialog');
         await expect(detailsDialog).toBeVisible();
@@ -81,7 +72,7 @@ test.describe('Admin Dashboard', () => {
         await page.getByRole('button', { name: 'Log Out' }).click();
         
         await expect(page.getByRole('dialog')).toBeVisible();
-        page.locator('#confirm-logout-button').click();
+        await page.locator('#confirm-logout-button').click();
         await expect(page).toHaveURL(/.*login/);
     });
 });

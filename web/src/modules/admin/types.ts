@@ -10,6 +10,7 @@ export interface Visit {
   unitNumber: string;
   unitBuilding: string;
   status: string;
+  rejectionReason?: string;
   createdAt: string;
   updatedAt: string;
 }

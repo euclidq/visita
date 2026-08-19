@@ -1,23 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
-import {
-  Button,
-  Descriptions,
-  Input,
-  Modal,
-  Select,
-  Space,
-  Table,
-  Tag,
-} from 'antd';
+import { Button, Input, Select, Space } from 'antd';
+import { RefreshCw } from 'lucide-react';
 
 import Header from '../../shared/components/Header';
-import { STATUS_COLORS } from '../../shared/constants/colors';
 import useOpenNotification from '../../shared/hooks/useOpenNotification';
 import AdminNavbar from './AdminNavbar';
+import ApprovalConfirmationModal from './components/ApprovalConfirmationModal';
+import RegistrationDetailsModal from './components/RegistrationDetailsModal';
+import RejectionReasonModal from './components/RejectionReasonModal';
+import VisitorRegistrationsTable from './components/VisitorRegistrationsTable';
 import type { Visit, VisitTableRow } from './types';
-import { Eye, RefreshCw } from 'lucide-react';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -26,13 +20,16 @@ const AdminDashboard = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<string>();
+  const [status, setStatus] = useState<string>('PENDING');
   const [sortField, setSortField] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'ascend' | 'descend'>('descend');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewingVisitId, setViewingVisitId] = useState<string>();
   const [selectedVisit, setSelectedVisit] = useState<Visit>();
+  const [updatingVisitId, setUpdatingVisitId] = useState<string>();
+  const [approvalVisitId, setApprovalVisitId] = useState<string>();
+  const [rejectionVisitId, setRejectionVisitId] = useState<string>();
 
   const fetchVisits = useCallback(async (showSuccessNotification = false) => {
     setIsLoading(true);
@@ -53,7 +50,9 @@ const AdminDashboard = () => {
       setVisits(response.data.data);
       setTotal(response.data.pagination.total);
 
-      if (showSuccessNotification) openNotification('success', response.data.title , response.data.message);
+      if (showSuccessNotification) {
+        openNotification('success', response.data.title, response.data.message);
+      }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         await navigate({ to: '/admin/login' });
@@ -99,6 +98,36 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleStatusUpdate = async (
+    visitId: string,
+    nextStatus: 'APPROVED' | 'REJECTED',
+    rejectionReason?: string,
+  ) => {
+    setUpdatingVisitId(visitId);
+
+    try {
+      const response = await axios.patch<{ title: string; message: string; data: Visit }>(
+        `${import.meta.env.VITE_API_URL}/visit/${visitId}/status`,
+        { status: nextStatus, rejectionReason },
+        { withCredentials: true },
+      );
+
+      setSelectedVisit((current) => current?._id === visitId ? response.data.data : current);
+      setApprovalVisitId(undefined);
+      setRejectionVisitId(undefined);
+      await fetchVisits();
+      openNotification('success', response.data.title, response.data.message);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        await navigate({ to: '/admin/login' });
+      } else {
+        openApiError(error, 'Status Update Failed', 'Unable to update visit status');
+      }
+    } finally {
+      setUpdatingVisitId(undefined);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -123,7 +152,9 @@ const AdminDashboard = () => {
               <Select
                 id="Status"
                 allowClear
+                virtual={false}
                 placeholder="All statuses"
+                value={status}
                 className="w-44"
                 options={['PENDING', 'APPROVED', 'REJECTED'].map((value) => ({
                   value,
@@ -143,136 +174,47 @@ const AdminDashboard = () => {
               Refresh
             </Button>
           </div>
-          <Table<VisitTableRow>
-            rowKey="_id"
-            loading={isLoading}
-            dataSource={visits}
-            pagination={{
-              current: page,
-              pageSize: 5,
-              total,
-              showSizeChanger: false,
-              onChange: setPage,
+
+          <VisitorRegistrationsTable
+            visits={visits}
+            page={page}
+            total={total}
+            sortField={sortField}
+            sortOrder={sortOrder}
+            isLoading={isLoading}
+            viewingVisitId={viewingVisitId}
+            onPageChange={setPage}
+            onSortChange={(field, order) => {
+              setPage(1);
+              setSortField(field);
+              setSortOrder(order);
             }}
-            scroll={{ x: 'max-content' }}
-            onChange={(_, __, sorter, extra) => {
-              if (extra.action === 'sort' && !Array.isArray(sorter)) {
-                setPage(1);
-                setSortField(sorter.order ? String(sorter.field) : 'createdAt');
-                setSortOrder(sorter.order ?? 'descend');
-              }
-            }}
-            columns={[
-              {
-                title: 'Actions',
-                key: 'actions',
-                render: (_, visit) => (
-                  <Button
-                    id="view"
-                    type="link"
-                    size="small"
-                    loading={viewingVisitId === visit._id}
-                    onClick={() => void handleView(visit._id)}
-                  >
-                    <Eye size={16} />
-                    View
-                  </Button>
-                ),
-              },
-              {
-                title: 'Reference Number',
-                dataIndex: 'referenceNumber',
-                sorter: true,
-                sortOrder: sortField === 'referenceNumber' ? sortOrder : null,
-              },
-              {
-                title: 'Status',
-                dataIndex: 'status',
-                sorter: true,
-                sortOrder: sortField === 'status' ? sortOrder : null,
-                render: (value) => (
-                  <Tag color={STATUS_COLORS[value] ?? 'default'} variant="solid">
-                    {value}
-                  </Tag>
-                ),
-              },
-              {
-                title: 'Visitor Name',
-                dataIndex: 'firstName',
-                sorter: true,
-                sortOrder: sortField === 'firstName' ? sortOrder : null,
-                render: (_, visit) => `${visit.firstName} ${visit.lastName}`,
-              },
-              {
-                title: 'Person to Visit',
-                dataIndex: 'personToVisit',
-                sorter: true,
-                sortOrder: sortField === 'personToVisit' ? sortOrder : null,
-              },
-              {
-                title: 'Location',
-                dataIndex: 'unitBuilding',
-                sorter: true,
-                sortOrder: sortField === 'unitBuilding' ? sortOrder : null,
-                render: (_, visit) => `${visit.unitNumber}, ${visit.unitBuilding}`,
-              },
-              {
-                title: 'Registration Date',
-                dataIndex: 'createdAt',
-                sorter: true,
-                sortOrder: sortField === 'createdAt' ? sortOrder : null,
-                render: (value) => new Date(value).toLocaleString(),
-              },
-            ]}
+            onView={(visitId) => void handleView(visitId)}
           />
         </div>
       </div>
 
-      <Modal
-        title={selectedVisit && (
-          <h2>Registration Details</h2>
-        )}
-        open={Boolean(selectedVisit)}
-        centered
-        footer={null}
-        width={720}
-        onCancel={() => setSelectedVisit(undefined)}
-      >
-        {selectedVisit && (
-          <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="Reference Number">
-              {selectedVisit.referenceNumber}
-            </Descriptions.Item>
-            <Descriptions.Item label="Status">
-              <Tag color={STATUS_COLORS[selectedVisit.status] ?? 'default'} variant="solid">
-                {selectedVisit.status}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Visitor Name">
-              {selectedVisit.firstName} {selectedVisit.lastName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Email Address">
-              {selectedVisit.emailAddress}
-            </Descriptions.Item>
-            <Descriptions.Item label="Mobile Number">
-              {selectedVisit.mobileNumber}
-            </Descriptions.Item>
-            <Descriptions.Item label="Purpose">{selectedVisit.purpose}</Descriptions.Item>
-            <Descriptions.Item label="Person to Visit">
-              {selectedVisit.personToVisit}
-            </Descriptions.Item>
-            <Descriptions.Item label="Location">
-              {selectedVisit.unitNumber}, {selectedVisit.unitBuilding}
-            </Descriptions.Item>
-            <Descriptions.Item label="Registration Date">
-              {new Date(selectedVisit.createdAt).toLocaleString()}
-            </Descriptions.Item>
-            <Descriptions.Item label="Last Updated">
-              {new Date(selectedVisit.updatedAt).toLocaleString()}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
+      <RegistrationDetailsModal
+        visit={selectedVisit}
+        isUpdating={updatingVisitId === selectedVisit?._id}
+        onClose={() => setSelectedVisit(undefined)}
+        onApprove={setApprovalVisitId}
+        onReject={setRejectionVisitId}
+      />
+      <ApprovalConfirmationModal
+        open={Boolean(approvalVisitId)}
+        isLoading={updatingVisitId === approvalVisitId}
+        onCancel={() => setApprovalVisitId(undefined)}
+        onConfirm={() => approvalVisitId
+          && void handleStatusUpdate(approvalVisitId, 'APPROVED')}
+      />
+      <RejectionReasonModal
+        visitId={rejectionVisitId}
+        isLoading={updatingVisitId === rejectionVisitId}
+        onCancel={() => setRejectionVisitId(undefined)}
+        onReject={(reason) => rejectionVisitId
+          && void handleStatusUpdate(rejectionVisitId, 'REJECTED', reason)}
+      />
     </div>
   );
 };

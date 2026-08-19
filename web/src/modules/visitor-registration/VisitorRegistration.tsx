@@ -293,7 +293,8 @@ const VisitorRegistration = () => {
                     onBlur={handleInputBlur}/>
                   <Button
                     id="send-otp-button"
-                    type="primary"
+                    color="primary"
+                    variant="solid"
                     disabled={isEmailVerified || isOtpCountdownActive}
                     loading={isSendingOtp}
                     onClick={handleSendOtp}>
@@ -314,7 +315,8 @@ const VisitorRegistration = () => {
                       disabled={!otpSent}/>
                     <Button
                       id="verify-otp-button"
-                      type="primary"
+                      color="primary"
+                      variant="solid"
                       disabled={isEmailVerified || !otp}
                       loading={isVerifyingOtp}
                       onClick={handleVerifyOtp}>
@@ -341,7 +343,8 @@ const VisitorRegistration = () => {
                 </Button>
                 <Button
                   id="next"
-                  type="primary"
+                  color="primary"
+                  variant="solid"
                   htmlType="submit"
                   disabled={!isVisitorStepValid || !isEmailVerified}
                 >
@@ -396,7 +399,8 @@ const VisitorRegistration = () => {
                 </Button>
                 <Button
                   id="submit"
-                  type="primary"
+                  color="primary"
+                  variant="solid"
                   htmlType="submit"
                   disabled={!isVisitStepValid}
                   loading={isSubmitting}

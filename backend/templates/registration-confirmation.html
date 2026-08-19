@@ -4,120 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Registration Confirmation</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        background-color: #f3f4f6;
-        color: #111827;
-        font-family: Arial, sans-serif;
-      }
-
-      .email-shell {
-        padding: 32px 16px;
-      }
-
-      .confirmation-card {
-        max-width: 560px;
-        margin: 0 auto;
-        overflow: hidden;
-        border-radius: 12px;
-        background-color: #ffffff;
-      }
-
-      .brand-header {
-        padding: 24px 32px;
-        border-bottom: 1px solid #dbeafe;
-        background-color: #eff6ff;
-        text-align: center;
-      }
-
-      .brand-logo {
-        display: block;
-        width: 180px;
-        max-width: 100%;
-        height: auto;
-        margin: 0 auto;
-      }
-
-      .confirmation-content {
-        padding: 32px;
-        text-align: center;
-      }
-
-      .confirmation-title {
-        margin: 0 0 12px;
-        font-size: 24px;
-      }
-
-      .confirmation-message,
-      .reference-label,
-      .arrival-instruction {
-        color: #4b5563;
-      }
-
-      .confirmation-message {
-        margin: 0 0 24px;
-      }
-
-      .reference-label {
-        margin: 0 0 8px;
-      }
-
-      .reference-number {
-        margin: 0 0 24px;
-        font-size: 20px;
-        font-weight: 700;
-      }
-
-      .qr-code {
-        display: block;
-        width: 100%;
-        max-width: 320px;
-        height: auto;
-        margin: 0 auto;
-      }
-
-      .arrival-instruction {
-        margin: 24px 0 0;
-      }
-
-      @media (max-width: 600px) {
-        .email-shell {
-          padding: 16px 8px;
-        }
-
-        .brand-header,
-        .confirmation-content {
-          padding: 24px 16px;
-        }
-      }
-    </style>
   </head>
-  <body>
-    <main class="email-shell">
-      <article class="confirmation-card" aria-labelledby="confirmation-title">
-        <header class="brand-header">
-          <img class="brand-logo" src="cid:{{logoCid}}" alt="Visita" width="180" />
-        </header>
-        <section class="confirmation-content">
-          <h1 id="confirmation-title" class="confirmation-title">Registration confirmed</h1>
-          <p class="confirmation-message">Your registration has been confirmed successfully.</p>
-          <p class="reference-label">Reference number</p>
-          <p class="reference-number">{{referenceNumber}}</p>
-          <img
-            class="qr-code"
-            src="cid:{{qrCodeCid}}"
-            alt="QR code containing the registration reference number"
-            width="320"
-          />
-          <p class="arrival-instruction">Present this QR code before check-in.</p>
-        </section>
-      </article>
-    </main>
+  <body style="margin: 0; padding: 0; background-color: #f3f4f6" bgcolor="#f3f4f6">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="width: 100%; background-color: #f3f4f6">
+      <tr>
+        <td align="center" style="padding: 32px 16px">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width: 100%; max-width: 560px; overflow: hidden; border-radius: 12px; background-color: #ffffff">
+            <tr>
+              <td align="center" bgcolor="#3b82f6" style="padding: 24px 32px; background-color: #3b82f6">
+                <img src="cid:{{logoCid}}" alt="Visita" width="180" style="display: block; width: 180px; max-width: 100%; height: auto; margin: 0 auto" />
+              </td>
+            </tr>
+            <tr>
+              <td align="center" bgcolor="#ffffff" style="padding: 32px; background-color: #ffffff; color: #111827; font-family: Arial, sans-serif; text-align: center">
+                <h1 style="margin: 0 0 12px; font-size: 24px">Registration confirmed</h1>
+                <p style="margin: 0 0 24px; color: #4b5563">Your registration has been submitted and is subject to approval. Please wait for 1-2 business days for an email confirming whether it has been approved or rejected.</p>
+                <p style="margin: 0 0 8px; color: #4b5563">Reference number</p>
+                <p style="margin: 0; font-size: 20px; font-weight: 700">{{referenceNumber}}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

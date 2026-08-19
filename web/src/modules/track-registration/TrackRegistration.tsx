@@ -197,7 +197,8 @@ const TrackRegistration = () => {
                 onBlur={handleInputBlur} />
               <Button
                 id="send-otp"
-                type="primary"
+                color="primary"
+                variant="solid"
                 loading={isSendingOtp}
                 disabled={isOtpVerified || isOtpCountdownActive}
                 onClick={handleSendOtp}>
@@ -231,7 +232,8 @@ const TrackRegistration = () => {
             </Button>
             <Button
               id="track-registration"
-              type="primary"
+              color="primary"
+              variant="solid"
               htmlType="submit"
               loading={isTrackingRegistration}
               disabled={

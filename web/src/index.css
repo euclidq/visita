@@ -23,7 +23,8 @@ textarea {
 }
 
 .card {
-  @apply bg-white shadow-md rounded-lg p-6;
+  @apply rounded-xl border border-gray-200 bg-white p-6 sm:p-8;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.06);
 }
 
 h1 {

@@ -52,12 +52,13 @@ const AdminNavbar = () => {
     Modal.confirm({
       title: "Confirm Logout",
       content: "Are you sure you want to log out?",
+      centered: true,
       okText: "Log Out",
       cancelText: "Cancel",
       okButtonProps: {
         id: "confirm-logout-button",
-        danger: true,
-        type: "primary",
+        color: "danger",
+        variant: "solid",
       },
       onOk: async () => {
         await handleLogout();
@@ -70,7 +71,11 @@ const AdminNavbar = () => {
       {contextHolder}
       <nav className="bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-2">
-          <Button type="link" onClick={() => navigate({ to: '/admin/dashboard' })}>
+          <Button
+            color="primary"
+            variant="link"
+            onClick={() => navigate({ to: '/admin/dashboard' })}
+          >
             Dashboard
           </Button>
           <Space>

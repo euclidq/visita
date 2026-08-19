@@ -144,7 +144,8 @@ const AdminLogin = () => {
           </InputWrapper>
           <Button
             id="log-in"
-            type="primary"
+            color="primary"
+            variant="solid"
             htmlType="submit"
             loading={isLoggingIn}>
             Log In
