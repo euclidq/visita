@@ -1,8 +1,9 @@
 import { Button, Table, Tag } from 'antd';
 import { Eye } from 'lucide-react';
 
-import { STATUS_COLORS } from '../../../shared/constants/colors';
+import { formatVisitStatus, STATUS_COLORS } from '../../../shared/constants/colors';
 import type { VisitTableRow } from '../types';
+import { formatVisitDuration } from '../utils';
 
 type SortOrder = 'ascend' | 'descend';
 
@@ -10,6 +11,7 @@ interface VisitorRegistrationsTableProps {
   visits: VisitTableRow[];
   page: number;
   total: number;
+  pageSize?: number;
   sortField: string;
   sortOrder: SortOrder;
   isLoading: boolean;
@@ -23,6 +25,7 @@ const VisitorRegistrationsTable = ({
   visits,
   page,
   total,
+  pageSize = 5,
   sortField,
   sortOrder,
   isLoading,
@@ -37,7 +40,7 @@ const VisitorRegistrationsTable = ({
     dataSource={visits}
     pagination={{
       current: page,
-      pageSize: 5,
+      pageSize,
       total,
       showSizeChanger: false,
       onChange: onPageChange,
@@ -81,7 +84,7 @@ const VisitorRegistrationsTable = ({
         sortOrder: sortField === 'status' ? sortOrder : null,
         render: (value) => (
           <Tag color={STATUS_COLORS[value] ?? 'default'} variant="solid">
-            {value}
+            {formatVisitStatus(value)}
           </Tag>
         ),
       },
@@ -104,6 +107,21 @@ const VisitorRegistrationsTable = ({
         sorter: true,
         sortOrder: sortField === 'unitBuilding' ? sortOrder : null,
         render: (_, visit) => `${visit.unitNumber}, ${visit.unitBuilding}`,
+      },
+      {
+        title: 'Check-in Time',
+        dataIndex: 'checkInAt',
+        render: (value) => value ? new Date(value).toLocaleString() : '—',
+      },
+      {
+        title: 'Check-out Time',
+        dataIndex: 'checkOutAt',
+        render: (value) => value ? new Date(value).toLocaleString() : '—',
+      },
+      {
+        title: 'Visit Duration',
+        dataIndex: 'visitDuration',
+        render: (value) => formatVisitDuration(value),
       },
       {
         title: 'Registration Date',

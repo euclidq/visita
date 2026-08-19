@@ -14,6 +14,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as TrackRegistrationIndexRouteImport } from './routes/track-registration/index'
 import { Route as VisitorRegistrationIndexRouteImport } from './routes/visitor-registration/index'
 import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
+import { Route as AdminVisitorRegistrationsIndexRouteImport } from './routes/admin/visitor-registrations/index'
 import { Route as VisitorRegistrationSuccessIndexRouteImport } from './routes/visitor-registration/success/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -42,6 +43,12 @@ const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
   path: '/admin/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminVisitorRegistrationsIndexRoute =
+  AdminVisitorRegistrationsIndexRouteImport.update({
+    id: '/admin/visitor-registrations/',
+    path: '/admin/visitor-registrations/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const VisitorRegistrationSuccessIndexRoute =
   VisitorRegistrationSuccessIndexRouteImport.update({
     id: '/visitor-registration/success/',
@@ -55,6 +62,7 @@ export interface FileRoutesByFullPath {
   '/track-registration/': typeof TrackRegistrationIndexRoute
   '/visitor-registration/': typeof VisitorRegistrationIndexRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/admin/visitor-registrations/': typeof AdminVisitorRegistrationsIndexRoute
   '/visitor-registration/success/': typeof VisitorRegistrationSuccessIndexRoute
 }
 export interface FileRoutesByTo {
@@ -63,6 +71,7 @@ export interface FileRoutesByTo {
   '/track-registration': typeof TrackRegistrationIndexRoute
   '/visitor-registration': typeof VisitorRegistrationIndexRoute
   '/admin/dashboard': typeof AdminDashboardIndexRoute
+  '/admin/visitor-registrations': typeof AdminVisitorRegistrationsIndexRoute
   '/visitor-registration/success': typeof VisitorRegistrationSuccessIndexRoute
 }
 export interface FileRoutesById {
@@ -72,6 +81,7 @@ export interface FileRoutesById {
   '/track-registration/': typeof TrackRegistrationIndexRoute
   '/visitor-registration/': typeof VisitorRegistrationIndexRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/admin/visitor-registrations/': typeof AdminVisitorRegistrationsIndexRoute
   '/visitor-registration/success/': typeof VisitorRegistrationSuccessIndexRoute
 }
 export interface FileRouteTypes {
@@ -82,6 +92,7 @@ export interface FileRouteTypes {
     | '/track-registration/'
     | '/visitor-registration/'
     | '/admin/dashboard/'
+    | '/admin/visitor-registrations/'
     | '/visitor-registration/success/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -90,6 +101,7 @@ export interface FileRouteTypes {
     | '/track-registration'
     | '/visitor-registration'
     | '/admin/dashboard'
+    | '/admin/visitor-registrations'
     | '/visitor-registration/success'
   id:
     | '__root__'
@@ -98,6 +110,7 @@ export interface FileRouteTypes {
     | '/track-registration/'
     | '/visitor-registration/'
     | '/admin/dashboard/'
+    | '/admin/visitor-registrations/'
     | '/visitor-registration/success/'
   fileRoutesById: FileRoutesById
 }
@@ -107,6 +120,7 @@ export interface RootRouteChildren {
   TrackRegistrationIndexRoute: typeof TrackRegistrationIndexRoute
   VisitorRegistrationIndexRoute: typeof VisitorRegistrationIndexRoute
   AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
+  AdminVisitorRegistrationsIndexRoute: typeof AdminVisitorRegistrationsIndexRoute
   VisitorRegistrationSuccessIndexRoute: typeof VisitorRegistrationSuccessIndexRoute
 }
 
@@ -147,6 +161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/visitor-registrations/': {
+      id: '/admin/visitor-registrations/'
+      path: '/admin/visitor-registrations'
+      fullPath: '/admin/visitor-registrations/'
+      preLoaderRoute: typeof AdminVisitorRegistrationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/visitor-registration/success/': {
       id: '/visitor-registration/success/'
       path: '/visitor-registration/success'
@@ -163,6 +184,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrackRegistrationIndexRoute: TrackRegistrationIndexRoute,
   VisitorRegistrationIndexRoute: VisitorRegistrationIndexRoute,
   AdminDashboardIndexRoute: AdminDashboardIndexRoute,
+  AdminVisitorRegistrationsIndexRoute: AdminVisitorRegistrationsIndexRoute,
   VisitorRegistrationSuccessIndexRoute: VisitorRegistrationSuccessIndexRoute,
 }
 export const routeTree = rootRouteImport

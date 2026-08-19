@@ -41,12 +41,18 @@ const visitSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["PENDING", "APPROVED", "REJECTED"],
+      enum: ["PENDING", "APPROVED", "REJECTED", "CHECKED_IN", "CHECKED_OUT"],
       default: "PENDING",
     },
     rejectionReason: {
       type: String,
       trim: true,
+    },
+    checkInAt: {
+      type: Date,
+    },
+    checkOutAt: {
+      type: Date,
     },
   },
   { timestamps: true }

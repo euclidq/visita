@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import useOpenNotification from "../../shared/hooks/useOpenNotification";
 import axios from "axios";
 import Header from "../../shared/components/Header";
-import { STATUS_COLORS } from "../../shared/constants/colors";
+import { formatVisitStatus, STATUS_COLORS } from "../../shared/constants/colors";
 import { useNavigate } from '@tanstack/react-router';
 
 interface Visit {
@@ -253,7 +253,7 @@ const TrackRegistration = () => {
             <div className="flex items-center justify-between mb-4">
               <h3>Visit Details</h3>
               <Tag color={STATUS_COLORS[visit.status] ?? 'default'} variant="solid">
-                {visit.status}
+                {formatVisitStatus(visit.status)}
               </Tag>
             </div>
 

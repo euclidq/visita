@@ -11,6 +11,9 @@ export interface Visit {
   unitBuilding: string;
   status: string;
   rejectionReason?: string;
+  checkInAt?: string;
+  checkOutAt?: string;
+  visitDuration?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,5 +28,8 @@ export type VisitTableRow = Pick<
   | 'personToVisit'
   | 'unitNumber'
   | 'unitBuilding'
+  | 'checkInAt'
+  | 'checkOutAt'
+  | 'visitDuration'
   | 'createdAt'
 >;

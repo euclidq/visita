@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const testData = {
-    referenceNumber: 'VISIT-1785221437615',
+    referenceNumber: 'VISIT-1787052128989',
     emailAddress: 'euclidlquemada@gmail.com',
     otp: '123456'
 };
@@ -17,6 +17,8 @@ const sendOtp = async (page: Page, emailAddress: string) => {
 };
 
 test.describe('Track Registration', () => {
+    test.describe.configure({ mode: 'serial' });
+
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
         await page.getByRole('button', { name: 'Track Registration' }).click();
@@ -93,7 +95,6 @@ test.describe('Track Registration', () => {
         await expect(page.getByRole('button', { name: /Resend OTP after \(\d+s\)/ })).toBeVisible();
     });
 
-    // invalid reference number and email address combination
     test('[R1_TR_TC_009] should show error message with invalid reference number and invalid email address', async ({ page }) => {
         await page.getByLabel('Reference Number').fill('invalid-reference-number');
         await sendOtp(page, 'sample@email.com');

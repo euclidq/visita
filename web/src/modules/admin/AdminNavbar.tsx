@@ -71,13 +71,22 @@ const AdminNavbar = () => {
       {contextHolder}
       <nav className="bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-2">
-          <Button
-            color="primary"
-            variant="link"
-            onClick={() => navigate({ to: '/admin/dashboard' })}
-          >
-            Dashboard
-          </Button>
+          <Space>
+            <Button
+              color="primary"
+              variant="link"
+              onClick={() => navigate({ to: '/admin/dashboard' })}
+            >
+              Dashboard
+            </Button>
+            <Button
+              color="primary"
+              variant="link"
+              onClick={() => navigate({ to: '/admin/visitor-registrations' })}
+            >
+              Visitor Registrations
+            </Button>
+          </Space>
           <Space>
             {user && <span>{user.firstName} {user.lastName}</span>}
             <Button

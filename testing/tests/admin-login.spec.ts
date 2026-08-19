@@ -6,6 +6,8 @@ const testData = {
 };
 
 test.describe('Admin Login', () => {
+    test.describe.configure({ mode: 'serial' });
+    
     test.beforeEach(async ({ page }) => {
         await page.goto('/admin/login');
         await expect(page).toHaveURL(/.*login/);

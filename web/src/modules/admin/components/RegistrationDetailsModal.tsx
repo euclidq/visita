@@ -1,7 +1,8 @@
 import { Button, Descriptions, Modal, Tag } from 'antd';
 
-import { STATUS_COLORS } from '../../../shared/constants/colors';
+import { formatVisitStatus, STATUS_COLORS } from '../../../shared/constants/colors';
 import type { Visit } from '../types';
+import { formatVisitDuration } from '../utils';
 
 interface RegistrationDetailsModalProps {
   visit?: Visit;
@@ -9,6 +10,8 @@ interface RegistrationDetailsModalProps {
   onClose: () => void;
   onApprove: (visitId: string) => void;
   onReject: (visitId: string) => void;
+  onCheckIn: (visitId: string) => void;
+  onCheckOut: (visitId: string) => void;
 }
 
 const RegistrationDetailsModal = ({
@@ -17,6 +20,8 @@ const RegistrationDetailsModal = ({
   onClose,
   onApprove,
   onReject,
+  onCheckIn,
+  onCheckOut,
 }: RegistrationDetailsModalProps) => (
   <Modal
     title={visit && <h2>Registration Details</h2>}
@@ -44,6 +49,28 @@ const RegistrationDetailsModal = ({
             </Button>
           </>
         )}
+        {['APPROVED', 'CHECKED_IN'].includes(visit.status) && (
+          <>
+            <Button
+              color="primary"
+              variant="outlined"
+              disabled={visit.status !== 'APPROVED'}
+              loading={isUpdating && visit.status === 'APPROVED'}
+              onClick={() => onCheckIn(visit._id)}
+            >
+              Check In
+            </Button>
+            <Button
+              color="primary"
+              variant="solid"
+              disabled={visit.status !== 'CHECKED_IN'}
+              loading={isUpdating && visit.status === 'CHECKED_IN'}
+              onClick={() => onCheckOut(visit._id)}
+            >
+              Check Out
+            </Button>
+          </>
+        )}
       </>
     ) : null}
     width={720}
@@ -56,7 +83,7 @@ const RegistrationDetailsModal = ({
         </Descriptions.Item>
         <Descriptions.Item label="Status">
           <Tag color={STATUS_COLORS[visit.status] ?? 'default'} variant="solid">
-            {visit.status}
+            {formatVisitStatus(visit.status)}
           </Tag>
         </Descriptions.Item>
         {visit.rejectionReason && (
@@ -77,6 +104,21 @@ const RegistrationDetailsModal = ({
         <Descriptions.Item label="Registration Date">
           {new Date(visit.createdAt).toLocaleString()}
         </Descriptions.Item>
+        {visit.checkInAt && (
+          <Descriptions.Item label="Check-in Time">
+            {new Date(visit.checkInAt).toLocaleString()}
+          </Descriptions.Item>
+        )}
+        {visit.checkOutAt && (
+          <Descriptions.Item label="Check-out Time">
+            {new Date(visit.checkOutAt).toLocaleString()}
+          </Descriptions.Item>
+        )}
+        {visit.checkInAt && (
+          <Descriptions.Item label="Visit Duration">
+            {formatVisitDuration(visit.visitDuration)}
+          </Descriptions.Item>
+        )}
         <Descriptions.Item label="Last Updated">
           {new Date(visit.updatedAt).toLocaleString()}
         </Descriptions.Item>
