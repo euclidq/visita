@@ -4,7 +4,6 @@ import { routeTree } from './routeTree.gen'
 
 export const router = createRouter({
   routeTree,
-  basepath: '/visita',
 })
 
 declare module '@tanstack/react-router' {

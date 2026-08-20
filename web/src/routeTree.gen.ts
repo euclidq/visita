@@ -10,13 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as TrackRegistrationIndexRouteImport } from './routes/track-registration/index'
 import { Route as VisitorRegistrationIndexRouteImport } from './routes/visitor-registration/index'
+import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
+import { Route as AdminVisitorRegistrationsIndexRouteImport } from './routes/admin/visitor-registrations/index'
 import { Route as VisitorRegistrationSuccessIndexRouteImport } from './routes/visitor-registration/success/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrackRegistrationIndexRoute = TrackRegistrationIndexRouteImport.update({
@@ -30,6 +38,17 @@ const VisitorRegistrationIndexRoute =
     path: '/visitor-registration/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
+  id: '/admin/dashboard/',
+  path: '/admin/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminVisitorRegistrationsIndexRoute =
+  AdminVisitorRegistrationsIndexRouteImport.update({
+    id: '/admin/visitor-registrations/',
+    path: '/admin/visitor-registrations/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const VisitorRegistrationSuccessIndexRoute =
   VisitorRegistrationSuccessIndexRouteImport.update({
     id: '/visitor-registration/success/',
@@ -39,48 +58,69 @@ const VisitorRegistrationSuccessIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
   '/track-registration/': typeof TrackRegistrationIndexRoute
   '/visitor-registration/': typeof VisitorRegistrationIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/admin/visitor-registrations/': typeof AdminVisitorRegistrationsIndexRoute
   '/visitor-registration/success/': typeof VisitorRegistrationSuccessIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
   '/track-registration': typeof TrackRegistrationIndexRoute
   '/visitor-registration': typeof VisitorRegistrationIndexRoute
+  '/admin/dashboard': typeof AdminDashboardIndexRoute
+  '/admin/visitor-registrations': typeof AdminVisitorRegistrationsIndexRoute
   '/visitor-registration/success': typeof VisitorRegistrationSuccessIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
   '/track-registration/': typeof TrackRegistrationIndexRoute
   '/visitor-registration/': typeof VisitorRegistrationIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/admin/visitor-registrations/': typeof AdminVisitorRegistrationsIndexRoute
   '/visitor-registration/success/': typeof VisitorRegistrationSuccessIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin/login'
     | '/track-registration/'
     | '/visitor-registration/'
+    | '/admin/dashboard/'
+    | '/admin/visitor-registrations/'
     | '/visitor-registration/success/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/login'
     | '/track-registration'
     | '/visitor-registration'
+    | '/admin/dashboard'
+    | '/admin/visitor-registrations'
     | '/visitor-registration/success'
   id:
     | '__root__'
     | '/'
+    | '/admin/login'
     | '/track-registration/'
     | '/visitor-registration/'
+    | '/admin/dashboard/'
+    | '/admin/visitor-registrations/'
     | '/visitor-registration/success/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   TrackRegistrationIndexRoute: typeof TrackRegistrationIndexRoute
   VisitorRegistrationIndexRoute: typeof VisitorRegistrationIndexRoute
+  AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
+  AdminVisitorRegistrationsIndexRoute: typeof AdminVisitorRegistrationsIndexRoute
   VisitorRegistrationSuccessIndexRoute: typeof VisitorRegistrationSuccessIndexRoute
 }
 
@@ -91,6 +131,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/track-registration/': {
@@ -107,6 +154,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VisitorRegistrationIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/dashboard/': {
+      id: '/admin/dashboard/'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard/'
+      preLoaderRoute: typeof AdminDashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/visitor-registrations/': {
+      id: '/admin/visitor-registrations/'
+      path: '/admin/visitor-registrations'
+      fullPath: '/admin/visitor-registrations/'
+      preLoaderRoute: typeof AdminVisitorRegistrationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/visitor-registration/success/': {
       id: '/visitor-registration/success/'
       path: '/visitor-registration/success'
@@ -119,8 +180,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminLoginRoute: AdminLoginRoute,
   TrackRegistrationIndexRoute: TrackRegistrationIndexRoute,
   VisitorRegistrationIndexRoute: VisitorRegistrationIndexRoute,
+  AdminDashboardIndexRoute: AdminDashboardIndexRoute,
+  AdminVisitorRegistrationsIndexRoute: AdminVisitorRegistrationsIndexRoute,
   VisitorRegistrationSuccessIndexRoute: VisitorRegistrationSuccessIndexRoute,
 }
 export const routeTree = rootRouteImport

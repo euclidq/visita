@@ -6,13 +6,13 @@ const { generateOtp } = require("../utils/helpers");
 
 const otpStore = new Map();
 const verificationStore = new Map();
-const OTP_EXPIRY_MINUTES = process.env.OTP_EXPIRY_MINUTES;
+const OTP_EXPIRY_MINUTES = process.env.NODE_ENV === "testing" ? 0.1667 : process.env.OTP_EXPIRY_MINUTES;
 const OTP_EXPIRY_MS = OTP_EXPIRY_MINUTES * 60 * 1000;
 const OTP_RESEND_INTERVAL_SECONDS = parseInt(process.env.OTP_RESEND_INTERVAL_SECONDS, 10);
 const EMAIL_LOGO_CID = "visita-logo@visita";
 const EMAIL_LOGO_PATH = path.join(
   __dirname,
-  "../assets/visita_horizontal_blue.png",
+  "../assets/visita_horizontal_white.png",
 );
 
 const renderOtpEmail = async (otp) => {
@@ -29,7 +29,10 @@ const sendOtp = async (req, res) => {
   const emailAddress = req.body.emailAddress?.trim().toLowerCase();
 
   if (!emailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
-    return res.status(400).json({ message: "A valid email address is required" });
+    return res.status(400).json({
+      title: "OTP Sending Failed",
+      message: "A valid email address is required",
+    });
   }
 
   try {
@@ -38,14 +41,14 @@ const sendOtp = async (req, res) => {
 
     if (process.env.NODE_ENV !== "testing") {
       await mailer.sendMail({
-        from: `"Visitor Management System" <${process.env.GOOGLE_EMAIL}>`,
+        from: `"Visita" <${process.env.GOOGLE_EMAIL}>`,
         to: emailAddress,
         subject: "Your verification code",
         text: `Your verification code is ${otp}. It expires in ${OTP_EXPIRY_MINUTES} minutes.`,
         html: emailHtml,
         attachments: [
           {
-            filename: "visita-horizontal-blue.png",
+            filename: "visita-horizontal-white.png",
             path: EMAIL_LOGO_PATH,
             contentType: "image/png",
             cid: EMAIL_LOGO_CID,
@@ -98,8 +101,8 @@ const verifyOtp = (req, res) => {
   });
 
   res.status(200).json({
-    title: "OTP Verified",
-    message: "OTP verified successfully",
+    title: "OTP Verified Successfully",
+    message: "OTP has been verified successfully",
     verificationToken,
   });
 };

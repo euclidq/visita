@@ -9,7 +9,7 @@ import Header from '../../shared/components/Header';
 
 const VisitorRegistration = () => {
   const navigate = useNavigate();
-  const { openNotification, contextHolder } = useOpenNotification();
+  const { openNotification, openApiError, contextHolder } = useOpenNotification();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -129,16 +129,7 @@ const VisitorRegistration = () => {
       openNotification('success', response.data.title, response.data.message);
     } catch (error) {
       console.error('Error sending OTP:', error);
-      console.error("Error verifying OTP:", error);
-      if (axios.isAxiosError<{ title?: string; message?: string }>(error)) {
-        openNotification(
-          "error",
-          error.response?.data.title ?? "Invalid OTP",
-          error.response?.data.message ?? "Please check the OTP and try again",
-        );
-      } else {
-        openNotification("error", "Invalid OTP", "Please check the OTP and try again");
-      }
+      openApiError(error, 'OTP Sending Failed', 'Failed to send OTP');
     } finally {
       setIsSendingOtp(false);
     }
@@ -156,18 +147,10 @@ const VisitorRegistration = () => {
       });
       setVerificationToken(response.data.verificationToken);
       setIsEmailVerified(true);
-      openNotification('success', 'OTP Verified', 'Your email has been verified.');
+      openNotification('success', response.data.title, response.data.message);
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      if (axios.isAxiosError<{ title?: string; message?: string }>(error)) {
-        openNotification(
-          "error",
-          error.response?.data.title ?? "Invalid OTP",
-          error.response?.data.message ?? "Please check the OTP and try again",
-        );
-      } else {
-        openNotification("error", "Invalid OTP", "Please check the OTP and try again");
-      }
+      openApiError(error, 'OTP Verification Failed', 'Failed to verify OTP');
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -236,7 +219,7 @@ const VisitorRegistration = () => {
     } catch (error) {
       setIsSubmitting(false);
       console.error('Error submitting form:', error);
-      openNotification('error', 'Error', 'Failed to submit form');
+      openApiError(error, 'Registration Failed', 'Failed to submit form');
     }
   };
 
@@ -260,7 +243,17 @@ const VisitorRegistration = () => {
       <div className="container max-w-2xl space-y-4">
         {contextHolder}
         <h2>Visitor Registration</h2>
-        <div className="card flex flex-col gap-4">
+        <form
+          className="card flex flex-col gap-4"
+          onSubmit={(event) => {
+            if (currentStep === 1) {
+              event.preventDefault();
+              handleNext();
+            } else {
+              void handleSubmit(event);
+            }
+          }}
+        >
           <Steps
             current={currentStep - 1}
             items={[
@@ -300,7 +293,8 @@ const VisitorRegistration = () => {
                     onBlur={handleInputBlur}/>
                   <Button
                     id="send-otp-button"
-                    type="primary"
+                    color="primary"
+                    variant="solid"
                     disabled={isEmailVerified || isOtpCountdownActive}
                     loading={isSendingOtp}
                     onClick={handleSendOtp}>
@@ -321,7 +315,8 @@ const VisitorRegistration = () => {
                       disabled={!otpSent}/>
                     <Button
                       id="verify-otp-button"
-                      type="primary"
+                      color="primary"
+                      variant="solid"
                       disabled={isEmailVerified || !otp}
                       loading={isVerifyingOtp}
                       onClick={handleVerifyOtp}>
@@ -344,14 +339,15 @@ const VisitorRegistration = () => {
                 <Button
                   id="go-home"
                   onClick={() => { handleClearForm(); navigate({ to: '/' }); }}>
-                  Go Home
+                  Back to Menu
                 </Button>
                 <Button
                   id="next"
-                  type="primary"
-                  htmlType="button"
+                  color="primary"
+                  variant="solid"
+                  htmlType="submit"
                   disabled={!isVisitorStepValid || !isEmailVerified}
-                  onClick={handleNext}>
+                >
                   Next
                 </Button>
               </div>
@@ -403,16 +399,18 @@ const VisitorRegistration = () => {
                 </Button>
                 <Button
                   id="submit"
-                  type="primary"
+                  color="primary"
+                  variant="solid"
+                  htmlType="submit"
                   disabled={!isVisitStepValid}
                   loading={isSubmitting}
-                  onClick={handleSubmit}>
+                >
                   Submit
                 </Button>
               </div>
             </>
           )}
-        </div>
+        </form>
       </div>
     </div>
   )

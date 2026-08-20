@@ -1,5 +1,6 @@
 import { notification } from 'antd';
 import { useCallback } from 'react';
+import axios from 'axios';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -17,7 +18,22 @@ const useOpenNotification = () => {
     });
   }, [api]);
 
-  return { openNotification, contextHolder };
+  const openApiError = useCallback((
+    error: unknown,
+    title: string,
+    message: string,
+  ) => {
+    const response = axios.isAxiosError<{ title?: string; message?: string }>(error)
+      ? error.response?.data
+      : undefined;
+
+    api.error({
+      title: response?.title ?? title,
+      description: response?.message ?? message,
+    });
+  }, [api]);
+
+  return { openNotification, openApiError, contextHolder };
 };
 
 export default useOpenNotification;

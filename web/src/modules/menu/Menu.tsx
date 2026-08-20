@@ -10,7 +10,7 @@ const Menu = () => {
           id="visitor-registration"
           className="flex items-center justify-center gap-2 rounded-md px-2 py-4 text-white bg-blue-500 hover:bg-blue-600"
           onClick={() => {
-            window.location.href = "/visita/visitor-registration";
+            window.location.href = "/visitor-registration";
           }}>
           <ClipboardPen size={42} />
           <h3>Visitor Registration</h3>
@@ -19,7 +19,7 @@ const Menu = () => {
           id="track-registration"
           className="flex items-center justify-center gap-2 rounded-md px-2 py-4 text-white bg-blue-500 hover:bg-blue-600"
           onClick={() => {
-            window.location.href = "/visita/track-registration";
+            window.location.href = "/track-registration";
           }}>
           <FileSearch size={42} />
           <h3>Track Registration</h3>

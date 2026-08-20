@@ -19,9 +19,10 @@ const SuccessPage = () => {
         <Result
           className="card max-w-2xl"
           status="success"
-          title={title ?? message ?? 'Visitor registration submitted'}
+          title={title}
           subTitle={
             <div className="flex flex-col gap-2">
+              <span>{message}</span>
               <span>Take a screenshot of this reference number to track your status later:</span>
               <Typography.Text copyable={Boolean(referenceNumber)} strong>
                 {referenceNumber ?? 'Reference number unavailable'}
@@ -29,7 +30,11 @@ const SuccessPage = () => {
             </div>
           }
           extra={
-            <Button type="primary" onClick={() => navigate({ to: '/' })}>
+            <Button
+              color="primary"
+              variant="solid"
+              onClick={() => navigate({ to: '/' })}
+            >
               Back to Home
             </Button>
           }
