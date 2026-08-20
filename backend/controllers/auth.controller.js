@@ -3,6 +3,12 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
 const JWT_EXPIRY_MINUTES = parseInt(process.env.JWT_EXPIRY_MINUTES, 10);
+const isProduction = process.env.NODE_ENV === "production";
+const sessionCookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+};
 
 const login = async (req, res) => {
   const emailAddress = req.body.emailAddress?.trim().toLowerCase();
@@ -39,9 +45,7 @@ const login = async (req, res) => {
     );
 
     res.cookie("visita-session-cookie", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      ...sessionCookieOptions,
       maxAge: JWT_EXPIRY_MINUTES * 60 * 1000,
     });
     res.json({
@@ -65,11 +69,7 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  res.clearCookie("visita-session-cookie", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
+  res.clearCookie("visita-session-cookie", sessionCookieOptions);
   res.json({
     title: "Logout Successful",
     message: "Logged out successfully",

@@ -3,7 +3,7 @@ import AdminNavbar from './AdminNavbar';
 import VisitorRegistrationsPanel from './components/VisitorRegistrationsPanel';
 
 const AdminVisitorRegistrations = () => (
-  <div className="flex min-h-screen flex-col">
+  <div className="flex flex-1 flex-col">
     <Header />
     <AdminNavbar />
 

@@ -238,7 +238,7 @@ const VisitorRegistration = () => {
   ].every(([name, value]) => !validateField(name, value));
 
   return (
-    <div>
+    <div className="flex flex-1 flex-col">
       <Header />
       <div className="container max-w-2xl space-y-4">
         {contextHolder}

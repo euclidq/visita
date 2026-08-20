@@ -165,7 +165,7 @@ const TrackRegistration = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-1 flex-col">
       <Header />
       {contextHolder}
       <div className="container max-w-2xl space-y-4">

@@ -3,7 +3,7 @@ import { ClipboardPen, FileSearch } from "lucide-react";
 
 const Menu = () => {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-1 flex-col">
       <Header />
       <div className="container flex flex-1 flex-col max-w-2xl gap-4 justify-center">
         <button
