@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prod": "node index.js",
     "dev": "nodemon index.js",
     "create-user": "node scripts/create-user.js",
     "create-visits": "node scripts/create-visits.js",

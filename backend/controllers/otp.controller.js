@@ -6,7 +6,7 @@ const { generateOtp } = require("../utils/helpers");
 
 const otpStore = new Map();
 const verificationStore = new Map();
-const OTP_EXPIRY_MINUTES = process.env.OTP_EXPIRY_MINUTES;
+const OTP_EXPIRY_MINUTES = process.env.NODE_ENV === "testing" ? 0.1667 : process.env.OTP_EXPIRY_MINUTES;
 const OTP_EXPIRY_MS = OTP_EXPIRY_MINUTES * 60 * 1000;
 const OTP_RESEND_INTERVAL_SECONDS = parseInt(process.env.OTP_RESEND_INTERVAL_SECONDS, 10);
 const EMAIL_LOGO_CID = "visita-logo@visita";
