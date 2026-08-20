@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   const refreshPanels = () => setRefreshKey((current) => current + 1);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-1 flex-col">
       <Header />
       <AdminNavbar />
 

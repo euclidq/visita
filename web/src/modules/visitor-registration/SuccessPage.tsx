@@ -13,7 +13,7 @@ const SuccessPage = () => {
   });
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-1 flex-col">
       <Header />
       <div className="container flex flex-1 items-center justify-center">
         <Result
