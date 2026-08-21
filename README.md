@@ -44,10 +44,11 @@ I built Visita to replace manual visitor logs with a clearer digital workflow. V
 
 ## Links
 
-Live Demo: [https://visita-mauve.vercel.app/](url)
-GitHub Repository: [https://github.com/euclidq](url)
-QA Documentation: [Visita - QA Documentation
+- Live Demo: [https://visita-mauve.vercel.app/](url)
+- GitHub Repository: [https://github.com/euclidq](url)
+- QA Documentation: [Google Sheets
 ](https://docs.google.com/spreadsheets/d/1hfxNQVcB-A8PSwr0LpNImcniX3aR3FsmwfOlb64jVGE/edit?usp=sharing)
+
 ## Author
 
 Created by Euclid Quemada
